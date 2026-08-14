@@ -1,0 +1,186 @@
+import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
+import { loadAppliedJobs, updateStatus, recordApplication } from "../jobs/tracker.js";
+import { getDueFollowUps } from "../jobs/tracker.js";
+import { runMorning } from "../agent/morning.js";
+import { scrapeJobUrl } from "../jobs/scraper.js";
+import { scoreJobs } from "../jobs/scorer.js";
+import { tailorCV } from "../cv/tailor.js";
+import { generateCoverLetter } from "../cv/coverLetter.js";
+import { loadProfile, saveProfile, profileToText } from "../profile/profile.js";
+import { parseProfileFromText } from "../profile/parser.js";
+import type { AppliedJob, Profile } from "../profile/types.js";
+import type { ScoredJob } from "../jobs/types.js";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// ─── Applications ─────────────────────────────────────────────────────────────
+
+app.get("/api/applications", (_req: Request, res: Response) => {
+  res.json(loadAppliedJobs());
+});
+
+app.patch("/api/applications/:id", (req: Request, res: Response) => {
+  const id = req.params["id"] as string;
+  const { status, notes } = req.body as { status: AppliedJob["status"]; notes?: string };
+  const valid: AppliedJob["status"][] = [
+    "applied", "screening", "interview", "offer", "rejected", "ghosted",
+  ];
+  if (!valid.includes(status)) {
+    res.status(400).json({ error: `Invalid status. Choose from: ${valid.join(", ")}` });
+    return;
+  }
+  try {
+    updateStatus(id, status, notes);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(404).json({ error: (err as Error).message });
+  }
+});
+
+// ─── Reminders ────────────────────────────────────────────────────────────────
+
+app.get("/api/reminders", (_req: Request, res: Response) => {
+  res.json(getDueFollowUps());
+});
+
+// ─── Morning run ──────────────────────────────────────────────────────────────
+
+let runInProgress = false;
+
+app.post("/api/run", async (_req: Request, res: Response) => {
+  if (runInProgress) {
+    res.status(409).json({ error: "A morning run is already in progress" });
+    return;
+  }
+  runInProgress = true;
+  try {
+    await runMorning();
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  } finally {
+    runInProgress = false;
+  }
+});
+
+app.get("/api/run/status", (_req: Request, res: Response) => {
+  res.json({ running: runInProgress });
+});
+
+// ─── Profile ──────────────────────────────────────────────────────────────────
+
+app.get("/api/profile", (_req: Request, res: Response) => {
+  try {
+    res.json(loadProfile());
+  } catch {
+    // Profile doesn't exist yet — return null so the UI knows to prompt setup
+    res.json(null);
+  }
+});
+
+app.put("/api/profile", (req: Request, res: Response) => {
+  const profile = req.body as Profile;
+  if (!profile?.name) {
+    res.status(400).json({ error: "Profile must include at least a name." });
+    return;
+  }
+  saveProfile(profile);
+  res.json({ ok: true });
+});
+
+app.post("/api/profile/parse", async (req: Request, res: Response) => {
+  const { text } = req.body as { text?: string };
+  if (!text || text.trim().length < 50) {
+    res.status(400).json({ error: "CV text is too short to parse." });
+    return;
+  }
+
+  try {
+    // Preserve existing job-tracking data across re-parses
+    let existing: Parameters<typeof parseProfileFromText>[1] = {};
+    try {
+      const current = loadProfile();
+      existing = {
+        appliedJobIds: current.appliedJobIds,
+        preferredCompanies: current.preferredCompanies,
+        targetRoles: current.targetRoles,
+        targetLocations: current.targetLocations,
+        salaryMin: current.salaryMin,
+      };
+    } catch { /* no profile yet — fine */ }
+
+    const profile = await parseProfileFromText(text, existing);
+    res.json(profile);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// ─── Apply from URL ───────────────────────────────────────────────────────────
+
+export interface ApplyUrlResult {
+  job: ScoredJob;
+  tailoredCV: import("../cv/tailor.js").TailoredCV;
+  coverLetter: string;
+}
+
+app.post("/api/apply-url", async (req: Request, res: Response) => {
+  const { url } = req.body as { url?: string };
+  if (!url || !url.startsWith("http")) {
+    res.status(400).json({ error: "A valid URL is required." });
+    return;
+  }
+
+  try {
+    const profile = loadProfile();
+
+    // 1. Scrape
+    const rawJob = await scrapeJobUrl(url);
+
+    // 2. Score (reuse batch scorer with a single job)
+    const [scored] = await scoreJobs([rawJob], profile);
+
+    // 3. Tailor CV + cover letter
+    const [tailored, coverLetter] = await Promise.all([
+      tailorCV(profile, scored),
+      generateCoverLetter(profile, scored),
+    ]);
+
+    // 4. Track application
+    const today = new Date().toISOString().slice(0, 10);
+    const followUpDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+
+    recordApplication({
+      id: scored.id,
+      title: scored.title,
+      company: scored.company,
+      url: scored.url,
+      appliedDate: today,
+      status: "applied",
+      followUpDate,
+    });
+
+    if (!profile.appliedJobIds.includes(scored.id)) {
+      profile.appliedJobIds.push(scored.id);
+      saveProfile(profile);
+    }
+
+    res.json({ job: scored, tailoredCV: tailored, coverLetter } satisfies ApplyUrlResult);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// ─── Error handler ────────────────────────────────────────────────────────────
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(err);
+  res.status(500).json({ error: err.message });
+});
+
+export default app;

@@ -1,0 +1,41 @@
+{
+  "name": "career-agent",
+  "version": "1.0.0",
+  "description": "Personal career manager — finds, scores, and applies for jobs every morning",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "career-agent": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node build/index.js",
+    "morning": "tsx src/index.ts morning",
+    "status": "tsx src/index.ts status",
+    "reminders": "tsx src/index.ts reminders",
+    "report": "tsx src/index.ts report",
+    "dev:api": "tsx watch src/server/index.ts",
+    "dev:ui": "cd ui && npm run dev",
+    "build:ui": "cd ui && npm run build"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "cors": "^2.8.6",
+    "date-fns": "^3.6.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "groq-sdk": "^1.5.0",
+    "node-fetch": "^3.3.2",
+    "ora": "^8.0.1",
+    "resend": "^3.2.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^20.14.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.2"
+  }
+}

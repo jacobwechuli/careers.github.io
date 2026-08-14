@@ -1,0 +1,22 @@
+# Environment variables — never commit secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+build/
+ui/dist/
+
+# Dependencies
+node_modules/
+ui/node_modules/
+
+# Data — contains your personal profile and job history
+data/profile.json
+data/applied-jobs.json
+data/output/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
