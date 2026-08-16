@@ -86,19 +86,30 @@ async function scoreOne(profileText: string, job: RawJob): Promise<ScoredJob> {
 // ─── Batch scoring ────────────────────────────────────────────────────────────
 
 /**
- * Scores all jobs concurrently (up to 5 at a time to respect rate limits).
+ * Scores all jobs concurrently with controlled concurrency to respect rate limits.
+ * Uses a semaphore pattern to limit concurrent requests while processing all jobs in parallel.
  * Returns jobs sorted by score descending.
  */
 export async function scoreJobs(jobs: RawJob[], profile: Profile): Promise<ScoredJob[]> {
   const profileText = profileToText(profile);
   const CONCURRENCY = 5;
-  const results: ScoredJob[] = [];
+  const results: ScoredJob[] = new Array(jobs.length);
 
-  for (let i = 0; i < jobs.length; i += CONCURRENCY) {
-    const batch = jobs.slice(i, i + CONCURRENCY);
-    const scored = await Promise.all(batch.map((job) => scoreOne(profileText, job)));
-    results.push(...scored);
+  // Process jobs with controlled concurrency using a sliding window
+  let currentIndex = 0;
+
+  async function processNext(): Promise<void> {
+    while (currentIndex < jobs.length) {
+      const index = currentIndex++;
+      results[index] = await scoreOne(profileText, jobs[index]);
+    }
   }
 
+  // Start CONCURRENCY workers to process jobs
+  const workers = Array.from({ length: Math.min(CONCURRENCY, jobs.length) }, () =>
+    processNext()
+  );
+
+  await Promise.all(workers);
   return results.sort((a, b) => b.score - a.score);
 }

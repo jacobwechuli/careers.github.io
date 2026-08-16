@@ -10,33 +10,52 @@ import type { RawJob } from "./types.js";
 
 const client = new Groq();
 
+// Pre-compiled regex patterns for better performance
+const SCRIPT_REGEX = /<script[\s\S]*?<\/script>/gi;
+const STYLE_REGEX = /<style[\s\S]*?<\/style>/gi;
+const BR_REGEX = /<br\s*\/?>/gi;
+const BLOCK_TAG_REGEX = /<\/?(p|li|div|h\d|section|article)[^>]*>/gi;
+const HTML_TAG_REGEX = /<[^>]+>/g;
+const NBSP_REGEX = /&nbsp;/g;
+const AMP_REGEX = /&amp;/g;
+const LT_REGEX = /&lt;/g;
+const GT_REGEX = /&gt;/g;
+const QUOT_REGEX = /&quot;/g;
+const APOS_REGEX = /&#39;/g;
+const WHITESPACE_REGEX = /[ \t]+/g;
+const NEWLINE_REGEX = /\n{3,}/g;
+
 /** Strip HTML tags and collapse whitespace into readable plain text. */
 function htmlToText(html: string): string {
   return html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/?(p|li|div|h\d|section|article)[^>]*>/gi, "\n")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
+    .replace(SCRIPT_REGEX, "")
+    .replace(STYLE_REGEX, "")
+    .replace(BR_REGEX, "\n")
+    .replace(BLOCK_TAG_REGEX, "\n")
+    .replace(HTML_TAG_REGEX, " ")
+    .replace(NBSP_REGEX, " ")
+    .replace(AMP_REGEX, "&")
+    .replace(LT_REGEX, "<")
+    .replace(GT_REGEX, ">")
+    .replace(QUOT_REGEX, '"')
+    .replace(APOS_REGEX, "'")
+    .replace(WHITESPACE_REGEX, " ")
+    .replace(NEWLINE_REGEX, "\n\n")
     .trim();
 }
 
 /** Extract structured job data from raw page text using the LLM. */
 async function extractJobFromText(pageText: string, url: string): Promise<RawJob> {
+  // Limit page text to reduce token usage while preserving key info
+  const MAX_CHARS = 4000;
+  const truncatedText = pageText.length > MAX_CHARS ? pageText.slice(0, MAX_CHARS) : pageText;
+
   const prompt = `You are a job posting parser. Extract structured data from the following job page text.
 
 URL: ${url}
 
-Page content (first 4000 chars):
-${pageText.slice(0, 4000)}
+Page content:
+${truncatedText}
 
 Return ONLY valid JSON with this exact schema — no extra fields, no markdown:
 {
@@ -74,7 +93,7 @@ If a field cannot be determined, use an empty string (not null) except for salar
     company: parsed.company || "Unknown Company",
     location: parsed.location || "Unknown",
     salary: parsed.salary ?? undefined,
-    description: parsed.description || pageText.slice(0, 3000),
+    description: parsed.description || truncatedText,
     url,
     postedAt: new Date().toISOString().slice(0, 10),
     source: "greenhouse" as const, // generic manual source

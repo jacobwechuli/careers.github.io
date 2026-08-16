@@ -108,17 +108,27 @@ async function searchRemotive(query: string): Promise<RawJob[]> {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// Pre-compiled regex patterns for HTML stripping
+const STRIP_BR_REGEX = /<br\s*\/?>/gi;
+const STRIP_BLOCK_REGEX = /<\/?(p|li|div|h\d)[^>]*>/gi;
+const STRIP_TAG_REGEX = /<[^>]+>/g;
+const STRIP_NBSP_REGEX = /&nbsp;/g;
+const STRIP_AMP_REGEX = /&amp;/g;
+const STRIP_LT_REGEX = /&lt;/g;
+const STRIP_GT_REGEX = /&gt;/g;
+const STRIP_NEWLINE_REGEX = /\n{3,}/g;
+
 /** Very lightweight HTML tag stripper for job descriptions. */
 function stripHtml(html: string): string {
   return html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/?(p|li|div|h\d)[^>]*>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\n{3,}/g, "\n\n")
+    .replace(STRIP_BR_REGEX, "\n")
+    .replace(STRIP_BLOCK_REGEX, "\n")
+    .replace(STRIP_TAG_REGEX, "")
+    .replace(STRIP_NBSP_REGEX, " ")
+    .replace(STRIP_AMP_REGEX, "&")
+    .replace(STRIP_LT_REGEX, "<")
+    .replace(STRIP_GT_REGEX, ">")
+    .replace(STRIP_NEWLINE_REGEX, "\n\n")
     .trim();
 }
 
@@ -138,17 +148,22 @@ function deduplicate(jobs: RawJob[]): RawJob[] {
  * and rejects if none of the must-have keywords appear at all.
  */
 function preFilter(jobs: RawJob[], profile: Profile): RawJob[] {
+  // Pre-compute lowercase keywords for faster matching
+  const roleFilters = profile.targetRoles.map((role) => ({
+    keywords: role.keywords.map((k) => k.toLowerCase()),
+    antiKeywords: (role.antiKeywords ?? []).map((k) => k.toLowerCase()),
+  }));
+
   return jobs.filter((job) => {
     const text = `${job.title} ${job.description}`.toLowerCase();
 
     // Must match at least one target role
-    const matchesRole = profile.targetRoles.some((role) => {
-      const hasKeyword = role.keywords.some((kw) => text.includes(kw.toLowerCase()));
-      const hasAnti = role.antiKeywords?.some((kw) => text.includes(kw.toLowerCase())) ?? false;
-      return hasKeyword && !hasAnti;
+    return roleFilters.some((filter) => {
+      const hasKeyword = filter.keywords.some((kw) => text.includes(kw));
+      if (!hasKeyword) return false;
+      const hasAnti = filter.antiKeywords.some((kw) => text.includes(kw));
+      return !hasAnti;
     });
-
-    return matchesRole;
   });
 }
 
@@ -159,23 +174,24 @@ function preFilter(jobs: RawJob[], profile: Profile): RawJob[] {
  * Returns pre-filtered, deduplicated raw jobs, excluding already-applied IDs.
  */
 export async function fetchJobs(profile: Profile): Promise<RawJob[]> {
-  const allJobs: RawJob[] = [];
+  const location = profile.targetLocations[0] ?? "London";
 
-  for (const role of profile.targetRoles) {
+  // Fetch all roles in parallel instead of sequentially
+  const fetchPromises = profile.targetRoles.map((role) => {
     const query = role.title;
-    const location = profile.targetLocations[0] ?? "London";
+    return Promise.all([searchAdzuna(query, location), searchRemotive(query)]);
+  });
 
-    const [adzunaJobs, remotiveJobs] = await Promise.all([
-      searchAdzuna(query, location),
-      searchRemotive(query),
-    ]);
-
-    allJobs.push(...adzunaJobs, ...remotiveJobs);
-  }
+  const results = await Promise.all(fetchPromises);
+  const allJobs: RawJob[] = results.flatMap(([adzunaJobs, remotiveJobs]) => [
+    ...adzunaJobs,
+    ...remotiveJobs,
+  ]);
 
   const unique = deduplicate(allJobs);
   const filtered = preFilter(unique, profile);
 
-  // Remove already-applied jobs
-  return filtered.filter((j) => !profile.appliedJobIds.includes(j.id));
+  // Remove already-applied jobs using a Set for O(1) lookup
+  const appliedSet = new Set(profile.appliedJobIds);
+  return filtered.filter((j) => !appliedSet.has(j.id));
 }
