@@ -107,4 +107,11 @@ export const api = {
 
   rankCompanies: () =>
     fetch(`${BASE}/companies/rank`, { method: "POST" }).then((r) => json<RankedCompany[]>(r)),
+
+  sendChat: (messages: { role: "user" | "assistant"; content: string }[]) =>
+    fetch(`${BASE}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages }),
+    }).then((r) => json<{ reply: string }>(r)),
 };

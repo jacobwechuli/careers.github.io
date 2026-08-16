@@ -5,11 +5,13 @@ import RemindersView from "../views/RemindersView.vue";
 import ApplyFromUrlView from "../views/ApplyFromUrlView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import CompaniesView from "../views/CompaniesView.vue";
+import ChatView from "../views/ChatView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: "/", component: DashboardView },
+    { path: "/chat", component: ChatView },
     { path: "/apply-url", component: ApplyFromUrlView },
     { path: "/applications", component: ApplicationsView },
     { path: "/reminders", component: RemindersView },

@@ -7,6 +7,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": "https://careersgithubio-production.up.railway.app",
+        // "/api": "http://localhost:3001",
     },
   },
 });

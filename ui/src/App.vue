@@ -3,6 +3,7 @@
     <nav class="sidebar">
       <div class="brand">🎯 Career Agent</div>
       <router-link to="/">Dashboard</router-link>
+      <router-link to="/chat">💬 Career Advisor</router-link>
       <router-link to="/apply-url">✦ Apply from URL</router-link>
       <router-link to="/applications">Applications</router-link>
       <router-link to="/reminders">Reminders</router-link>

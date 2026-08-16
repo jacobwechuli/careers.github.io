@@ -11,6 +11,8 @@ import { loadProfile, saveProfile, profileToText } from "../profile/profile.js";
 import { parseProfileFromText } from "../profile/parser.js";
 import { parseCompaniesFromExcel, addCompaniesToProfile, getPreferredCompanies } from "../jobs/excelParser.js";
 import { rankCompanies } from "../jobs/companyRanker.js";
+import { chat } from "./chat.js";
+import type { ChatMessage } from "./chat.js";
 import type { AppliedJob, Profile } from "../profile/types.js";
 import type { ScoredJob } from "../jobs/types.js";
 
@@ -267,6 +269,22 @@ app.delete("/api/companies/:name", (req: Request, res: Response) => {
 
     saveProfile(profile);
     res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+app.post("/api/chat", async (req: Request, res: Response) => {
+  const { messages } = req.body as { messages?: ChatMessage[] };
+  if (!Array.isArray(messages) || messages.length === 0) {
+    res.status(400).json({ error: "messages array is required." });
+    return;
+  }
+  try {
+    const reply = await chat(messages);
+    res.json({ reply });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
