@@ -5,7 +5,7 @@ A personal career manager that runs every morning to find, score, and prepare ap
 ## What it does
 
 Every morning, it:
-1. **Searches** Adzuna (UK) and Remotive (remote) for jobs matching your target roles
+1. **Searches** Adzuna (UK), Remotive (remote), LinkedIn, Indeed, Glassdoor, CWJobs, and Reed for jobs matching your target roles
 2. **Pre-filters** using keyword/anti-keyword rules from your profile
 3. **Scores** each job 0–100 against your CV using GPT-4o-mini, with match reasons and missing skills
 4. For every job above the threshold it:
@@ -140,7 +140,8 @@ src/
     profile.ts      ← load/save profile.json, profileToText() for LLM prompts
   jobs/
     types.ts        ← RawJob, ScoredJob interfaces
-    search.ts       ← Adzuna + Remotive search, pre-filtering
+    search.ts       ← Adzuna + Remotive + Web Crawler search, pre-filtering
+    crawler.ts      ← LinkedIn, Indeed, Glassdoor, CWJobs, Reed scraping
     scorer.ts       ← GPT-4o-mini batch scorer
     tracker.ts      ← applied-jobs.json read/write
   cv/

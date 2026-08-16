@@ -1,5 +1,5 @@
 /**
- * Job board search — Adzuna (UK) + Remotive (remote-only).
+ * Job board search — Adzuna (UK) + Remotive (remote-only) + Web Crawler.
  *
  * Required env vars:
  *   ADZUNA_APP_ID   — from developer.adzuna.com
@@ -8,6 +8,7 @@
 import fetch from "node-fetch";
 import type { RawJob } from "./types.js";
 import type { Profile } from "../profile/types.js";
+import { crawlAndEnrichJobs } from "./crawler.js";
 
 // ─── Adzuna ──────────────────────────────────────────────────────────────────
 
@@ -179,13 +180,18 @@ export async function fetchJobs(profile: Profile): Promise<RawJob[]> {
   // Fetch all roles in parallel instead of sequentially
   const fetchPromises = profile.targetRoles.map((role) => {
     const query = role.title;
-    return Promise.all([searchAdzuna(query, location), searchRemotive(query)]);
+    return Promise.all([
+      searchAdzuna(query, location),
+      searchRemotive(query),
+      crawlAndEnrichJobs(query, location, 5), // Crawl web for top 5 per role
+    ]);
   });
 
   const results = await Promise.all(fetchPromises);
-  const allJobs: RawJob[] = results.flatMap(([adzunaJobs, remotiveJobs]) => [
+  const allJobs: RawJob[] = results.flatMap(([adzunaJobs, remotiveJobs, crawledJobs]) => [
     ...adzunaJobs,
     ...remotiveJobs,
+    ...crawledJobs,
   ]);
 
   const unique = deduplicate(allJobs);

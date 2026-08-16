@@ -8,7 +8,7 @@ export interface RawJob {
   description: string; // full text
   url: string;
   postedAt: string; // ISO date
-  source: "adzuna" | "remotive" | "greenhouse";
+  source: "adzuna" | "remotive" | "greenhouse" | "linkedin" | "indeed" | "glassdoor" | "cwjobs" | "reed";
 }
 
 /** A job that has been scored against the user's profile. */
