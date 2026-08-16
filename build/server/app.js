@@ -9,6 +9,7 @@ import { tailorCV } from "../cv/tailor.js";
 import { generateCoverLetter } from "../cv/coverLetter.js";
 import { loadProfile, saveProfile } from "../profile/profile.js";
 import { parseProfileFromText } from "../profile/parser.js";
+import { parseCompaniesFromExcel, addCompaniesToProfile, getPreferredCompanies } from "../jobs/excelParser.js";
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -142,6 +143,72 @@ app.post("/api/apply-url", async (req, res) => {
             saveProfile(profile);
         }
         res.json({ job: scored, tailoredCV: tailored, coverLetter });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+// ─── Excel Upload ─────────────────────────────────────────────────────────────
+app.post("/api/companies/upload", (req, res) => {
+    const fileBuffer = req.body.fileBuffer;
+    if (!fileBuffer) {
+        res.status(400).json({ error: "No file provided. Please upload an Excel file." });
+        return;
+    }
+    try {
+        const companies = parseCompaniesFromExcel(fileBuffer);
+        const result = addCompaniesToProfile(companies);
+        res.json({ ok: true, ...result, companies });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+app.get("/api/companies", (_req, res) => {
+    try {
+        res.json(getPreferredCompanies());
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+app.patch("/api/companies/:name", (req, res) => {
+    const nameParam = req.params.name;
+    const companyName = decodeURIComponent(Array.isArray(nameParam) ? nameParam[0] : nameParam);
+    const { liked, notes } = req.body;
+    try {
+        const profile = loadProfile();
+        const company = profile.preferredCompanies.find((c) => c.name.toLowerCase() === companyName.toLowerCase());
+        if (!company) {
+            res.status(404).json({ error: "Company not found" });
+            return;
+        }
+        if (liked !== undefined) {
+            company.liked = liked;
+        }
+        if (notes !== undefined) {
+            company.notes = notes;
+        }
+        saveProfile(profile);
+        res.json({ ok: true });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+app.delete("/api/companies/:name", (req, res) => {
+    const nameParam = req.params.name;
+    const companyName = decodeURIComponent(Array.isArray(nameParam) ? nameParam[0] : nameParam);
+    try {
+        const profile = loadProfile();
+        const initialLength = profile.preferredCompanies.length;
+        profile.preferredCompanies = profile.preferredCompanies.filter((c) => c.name.toLowerCase() !== companyName.toLowerCase());
+        if (profile.preferredCompanies.length === initialLength) {
+            res.status(404).json({ error: "Company not found" });
+            return;
+        }
+        saveProfile(profile);
+        res.json({ ok: true });
     }
     catch (err) {
         res.status(500).json({ error: err.message });

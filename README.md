@@ -15,6 +15,13 @@ Every morning, it:
 5. **Tracks** every application in `data/applied-jobs.json`
 6. **Reminds** you to follow up 7 days after applying
 
+### Target Companies Feature
+
+Upload an Excel file (.xlsx, .xls) containing companies you want to work for:
+- **Columns**: `Company` (required), `URL` (optional), `Notes` (optional)
+- **Manage**: View all target companies, mark favorites, track job counts per company
+- **Integration**: Companies are added to your profile preferences and used during job scoring
+
 ---
 
 ## Setup
@@ -144,6 +151,7 @@ src/
     crawler.ts      ← LinkedIn, Indeed, Glassdoor, CWJobs, Reed scraping
     scorer.ts       ← GPT-4o-mini batch scorer
     tracker.ts      ← applied-jobs.json read/write
+    excelParser.ts  ← Excel file parser for target companies
   cv/
     tailor.ts       ← GPT CV tailoring
     coverLetter.ts  ← GPT cover letter generation
@@ -157,4 +165,8 @@ data/
   profile.example.json  ← template to copy
   applied-jobs.json     ← application tracker
   output/               ← generated CV materials
+ui/
+  src/
+    views/
+      CompaniesView.vue  ← Target companies upload & management UI
 ```

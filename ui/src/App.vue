@@ -7,6 +7,7 @@
       <router-link to="/applications">Applications</router-link>
       <router-link to="/reminders">Reminders</router-link>
       <div class="nav-divider"></div>
+      <router-link to="/companies">Target Companies</router-link>
       <router-link to="/profile">My Profile</router-link>
     </nav>
     <main class="content">
