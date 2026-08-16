@@ -1,7 +1,7 @@
 {
   "name": "career-agent",
   "version": "1.0.0",
-  "description": "Personal career manager — finds, scores, and applies for jobs every morning",
+  "description": "Personal career manager — scrapes job boards for junior and internship roles",
   "type": "module",
   "main": "build/index.js",
   "bin": {
@@ -11,11 +11,10 @@
     "build": "tsc",
     "dev": "tsx src/index.ts",
     "start": "node build/index.js",
-    "morning": "tsx src/index.ts morning",
+    "search": "tsx src/index.ts search",
     "status": "tsx src/index.ts status",
     "reminders": "tsx src/index.ts reminders",
-    "report": "tsx src/index.ts report",
-    "dev:api": "tsx watch src/server/index.ts",
+    "dev:api": "tsx watch --ignore='data/**' src/server/index.ts",
     "dev:ui": "cd ui && npm run dev",
     "build:ui": "cd ui && npm run build"
   },

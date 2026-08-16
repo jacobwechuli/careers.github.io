@@ -1,6 +1,6 @@
 /** A raw job posting fetched from a job board. */
 export interface RawJob {
-  id: string; // board-prefixed, e.g. "adzuna-123"
+  id: string; // board-prefixed, e.g. "linkedin-123"
   title: string;
   company: string;
   location: string;
@@ -8,7 +8,7 @@ export interface RawJob {
   description: string; // full text
   url: string;
   postedAt: string; // ISO date
-  source: "adzuna" | "remotive" | "greenhouse" | "linkedin" | "indeed" | "glassdoor" | "cwjobs" | "reed";
+  source: "linkedin" | "myjobmag" | "indeed" | "glassdoor" | "cwjobs" | "reed" | "greenhouse";
 }
 
 /** A job that has been scored against the user's profile. */

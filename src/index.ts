@@ -4,27 +4,39 @@ import "dotenv/config";
  * career-agent CLI
  *
  * Usage:
- *   career-agent morning    — run the daily job search + scoring + CV generation
- *   career-agent status     — show tracked application statuses
- *   career-agent reminders  — check follow-up reminders
- *   career-agent report     — send the weekly report email right now
+ *   career-agent search    — search job boards for matching junior/internship roles
+ *   career-agent status    — show tracked application statuses
+ *   career-agent reminders — check follow-up reminders
  *   career-agent update <id> <status> [notes]  — update an application's status
  */
 import chalk from "chalk";
-import { runMorning } from "./agent/morning.js";
+import { fetchJobs } from "./jobs/search.js";
+import { loadProfile } from "./profile/profile.js";
 import { checkReminders } from "./reminders/reminders.js";
 import { loadAppliedJobs, updateStatus } from "./jobs/tracker.js";
-import { sendEmail } from "./email/mailer.js";
-import { buildWeeklyReport } from "./email/templates.js";
 import type { AppliedJob } from "./profile/types.js";
 
 const [, , command, ...args] = process.argv;
 
 async function main(): Promise<void> {
   switch (command) {
-    case "morning":
-      await runMorning();
+    case "search": {
+      const profile = loadProfile();
+      console.log(chalk.bold.cyan("\n🔍  Career Agent — Job Search\n"));
+      const jobs = await fetchJobs(profile);
+      if (jobs.length === 0) {
+        console.log(chalk.yellow("No matching junior / internship roles found right now."));
+      } else {
+        console.log(chalk.green(`Found ${jobs.length} jobs:\n`));
+        for (const job of jobs) {
+          console.log(
+            `  ${chalk.bold(job.title)} ${chalk.dim(`@ ${job.company}`)} — ${job.location}`
+          );
+          console.log(chalk.dim(`  ${job.url}\n`));
+        }
+      }
       break;
+    }
 
     case "status":
       printStatus();
@@ -33,17 +45,6 @@ async function main(): Promise<void> {
     case "reminders":
       checkReminders();
       break;
-
-    case "report": {
-      const today = new Date().toISOString().slice(0, 10);
-      const weekStart = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-      await sendEmail({
-        subject: `📊 Career Agent — Weekly Report (${weekStart} → ${today})`,
-        html: buildWeeklyReport(loadAppliedJobs(), weekStart, today),
-      });
-      console.log(chalk.green("✓ Weekly report sent"));
-      break;
-    }
 
     case "update": {
       const [id, status, ...noteParts] = args;
@@ -71,7 +72,7 @@ async function main(): Promise<void> {
 function printStatus(): void {
   const jobs = loadAppliedJobs();
   if (jobs.length === 0) {
-    console.log(chalk.yellow("No applications tracked yet. Run `career-agent morning` to start."));
+    console.log(chalk.yellow("No applications tracked yet."));
     return;
   }
 
@@ -125,17 +126,16 @@ function printHelp(): void {
 ${chalk.bold.cyan("career-agent")} — personal career manager
 
 ${chalk.bold("Commands:")}
-  ${chalk.green("morning")}              Run the daily job hunt (search → score → draft CV & cover letter)
+  ${chalk.green("search")}               Search job boards for junior / internship roles
   ${chalk.green("status")}               Show all tracked applications grouped by status
   ${chalk.green("reminders")}            Check for overdue follow-ups
-  ${chalk.green("report")}               Send the weekly report email immediately
   ${chalk.green("update")} <id> <status> [notes]
                         Update an application's status
                         Statuses: applied | screening | interview | offer | rejected | ghosted
 
 ${chalk.bold("Examples:")}
-  career-agent morning
-  career-agent update adzuna-123 interview "Call booked for Friday"
+  career-agent search
+  career-agent update linkedin-123 interview "Call booked for Friday"
   career-agent status
 `);
 }

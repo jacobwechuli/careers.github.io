@@ -36,6 +36,8 @@ export interface TargetRole {
 export interface CompanyPreference {
   name: string;
   liked: boolean;
+  careerPage?: string;
+  openRemoteJobs?: number;
   notes?: string;
 }
 

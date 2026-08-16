@@ -8,41 +8,61 @@
       <p class="sub" style="margin-bottom: 16px">
         Upload an Excel file (.xlsx, .xls) with columns: Company, URL (optional), Notes (optional)
       </p>
-      
-      <div class="upload-area" @dragover.prevent @drop.prevent="handleDrop">
-        <input
-          ref="fileInputRef"
-          type="file"
-          accept=".xlsx,.xls"
-          @change="handleFileSelect"
-          style="display: none"
-        />
-        <div v-if="!selectedFile" class="upload-placeholder" @click="triggerFileInput">
-          <span class="upload-icon">📁</span>
-          <p><strong>Click to upload</strong> or drag and drop</p>
-          <p class="muted">Excel files only (.xlsx, .xls)</p>
+
+      <!-- Step 1: file picker -->
+      <div v-if="step === 'pick'">
+        <div class="upload-area" @dragover.prevent @drop.prevent="handleDrop">
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept=".xlsx,.xls"
+            @change="handleFileSelect"
+            style="display: none"
+          />
+          <div class="upload-placeholder" @click="triggerFileInput">
+            <span class="upload-icon">📁</span>
+            <p><strong>Click to upload</strong> or drag and drop</p>
+            <p class="muted">Excel files only (.xlsx, .xls)</p>
+          </div>
         </div>
-        <div v-else class="upload-preview">
-          <span class="file-icon">📄</span>
-          <span class="file-name">{{ selectedFile.name }}</span>
-          <button class="secondary small" @click.stop="confirmUpload" :disabled="uploading">
-            {{ uploading ? "Processing..." : "✓ Process" }}
-          </button>
-          <button class="danger small" @click.stop="clearFile">×</button>
-        </div>
+        <p v-if="uploadError" class="error-msg" style="margin-top: 12px">{{ uploadError }}</p>
       </div>
 
-      <div v-if="uploadResult" class="upload-result">
-        <p v-if="uploadResult.added > 0" class="success-msg">
-          ✓ Added {{ uploadResult.added }} company{{ uploadResult.added !== 1 ? 'ies' : 'y' }}
-        </p>
-        <p v-if="uploadResult.skipped > 0" class="muted">
-          Skipped {{ uploadResult.skipped }} duplicate{{ uploadResult.skipped !== 1 ? 's' : '' }}
-        </p>
+      <!-- Step 2: preview parsed rows -->
+      <div v-else-if="step === 'preview'">
+        <div class="preview-header">
+          <span class="muted">{{ parsedRows.length }} companies found in <strong>{{ selectedFile?.name }}</strong></span>
+          <div style="display:flex;gap:8px">
+            <button class="secondary small" @click="resetUpload">✕ Cancel</button>
+            <button class="primary small" :disabled="uploading" @click="confirmUpload">
+              {{ uploading ? "Saving…" : `✓ Save ${parsedRows.length} companies` }}
+            </button>
+          </div>
+        </div>
+        <table class="table" style="margin-top:12px">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>URL</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in parsedRows" :key="row.name">
+              <td>{{ row.name }}</td>
+              <td><a v-if="row.url" :href="row.url" target="_blank" class="link-btn">{{ row.url }}</a></td>
+              <td class="muted">{{ row.notes }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-if="uploadError" class="error-msg" style="margin-top: 12px">{{ uploadError }}</p>
       </div>
 
-      <div v-if="uploadError" class="error-msg" style="margin-top: 12px">
-        {{ uploadError }}
+      <!-- Step 3: done -->
+      <div v-else-if="step === 'done'" class="upload-result">
+        <p class="success-msg">✓ Added {{ uploadResult?.added }} compan{{ uploadResult?.added !== 1 ? 'ies' : 'y' }}</p>
+        <p v-if="uploadResult?.skipped" class="muted">Skipped {{ uploadResult.skipped }} duplicate{{ uploadResult.skipped !== 1 ? 's' : '' }}</p>
+        <button class="secondary small" style="margin-top:10px" @click="resetUpload">Upload another</button>
       </div>
     </div>
 
@@ -79,18 +99,65 @@
             </div>
           </div>
           <div class="company-actions">
+            <span v-if="company.openRemoteJobs !== undefined" class="jobs-badge" title="Open remote jobs">
+              {{ company.openRemoteJobs }} remote
+            </span>
             <span v-if="company.jobCount > 0" class="job-count badge">
-              {{ company.jobCount }} job{{ company.jobCount !== 1 ? 's' : '' }}
+              {{ company.jobCount }} applied
             </span>
             <a
-              v-if="company.notes?.includes('URL: http')"
-              :href="extractUrl(company.notes)"
+              v-if="company.careerPage"
+              :href="company.careerPage"
               target="_blank"
               class="link-btn"
             >
-              🔗 Visit
+              🔗 Careers
             </a>
             <button class="danger small" @click="deleteCompany(company)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Company Ranking -->
+    <div class="card" style="margin-top:24px">
+      <div class="rank-header">
+        <div>
+          <h2>AI Company Ranking</h2>
+          <p class="sub" style="margin-top:4px">Analyse your company list against your CV to find the best matches.</p>
+        </div>
+        <button class="primary" :disabled="ranking || companies.length === 0" @click="rankAll">
+          {{ ranking ? "Analysing…" : "✦ Rank Companies" }}
+        </button>
+      </div>
+
+      <p v-if="companies.length === 0 && !ranking" class="muted" style="margin-top:12px">
+        Upload your company list first, then rank them.
+      </p>
+      <p v-if="rankError" class="error-msg" style="margin-top:12px">{{ rankError }}</p>
+
+      <div v-if="rankedCompanies.length > 0" style="margin-top:16px">
+        <div
+          v-for="(company, idx) in rankedCompanies"
+          :key="company.name"
+          class="rank-item"
+          :class="{ 'rank-top': company.score >= 70 }"
+        >
+          <div class="rank-position">{{ idx + 1 }}</div>
+          <div class="rank-body">
+            <div class="rank-name-row">
+              <span class="rank-name">{{ company.name }}</span>
+              <span v-if="company.liked" title="Liked" style="font-size:14px">❤️</span>
+              <span v-if="company.openRemoteJobs !== undefined" class="jobs-badge">{{ company.openRemoteJobs }} remote</span>
+              <a v-if="company.careerPage" :href="company.careerPage" target="_blank" class="link-btn">🔗 Careers</a>
+            </div>
+            <p class="rank-reason muted">{{ company.reason }}</p>
+            <div class="rank-roles">
+              <span v-for="role in company.roleTypes" :key="role" class="role-tag">{{ role }}</span>
+            </div>
+          </div>
+          <div class="rank-score-col">
+            <div class="rank-score" :class="scoreClass(company.score)">{{ company.score }}</div>
           </div>
         </div>
       </div>
@@ -100,16 +167,31 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import * as XLSX from "xlsx";
 import { api } from "../api";
-import type { CompanyWithJobs, UploadResult } from "../api";
+import type { CompanyWithJobs, UploadResult, RankedCompany } from "../api";
+
+interface ParsedRow {
+  name: string;
+  careerPage?: string;
+  openRemoteJobs?: number;
+  notes?: string;
+}
+
+type Step = "pick" | "preview" | "done";
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const selectedFile = ref<File | null>(null);
+const step = ref<Step>("pick");
+const parsedRows = ref<ParsedRow[]>([]);
 const uploading = ref(false);
 const uploadResult = ref<UploadResult | null>(null);
 const uploadError = ref("");
 const loading = ref(true);
 const companies = ref<CompanyWithJobs[]>([]);
+const ranking = ref(false);
+const rankError = ref("");
+const rankedCompanies = ref<RankedCompany[]>([]);
 
 onMounted(async () => {
   await loadCompanies();
@@ -132,11 +214,8 @@ function triggerFileInput() {
 
 const sortedCompanies = computed(() => {
   return [...companies.value].sort((a, b) => {
-    // Liked companies first
     if (a.liked !== b.liked) return a.liked ? -1 : 1;
-    // Then by job count
     if (b.jobCount !== a.jobCount) return b.jobCount - a.jobCount;
-    // Then alphabetically
     return a.name.localeCompare(b.name);
   });
 });
@@ -145,9 +224,8 @@ function handleDrop(event: DragEvent) {
   const files = event.dataTransfer?.files;
   if (files && files.length > 0) {
     const file = files[0];
-    if (file.name.match(/\.(xlsx|xls)$/)) {
-      selectedFile.value = file;
-      uploadError.value = "";
+    if (file.name.match(/\.(xlsx|xls)$/i)) {
+      parseFile(file);
     } else {
       uploadError.value = "Please upload an Excel file (.xlsx or .xls)";
     }
@@ -156,40 +234,113 @@ function handleDrop(event: DragEvent) {
 
 function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement;
-  const files = input.files;
-  if (files && files.length > 0) {
-    selectedFile.value = files[0];
-    uploadError.value = "";
-  }
+  const file = input.files?.[0];
+  if (file) parseFile(file);
 }
 
-function clearFile() {
-  selectedFile.value = null;
-  if (fileInputRef.value) {
-    fileInputRef.value.value = "";
-  }
+/** Read the Excel file in the browser and show a preview — no server call yet. */
+function parseFile(file: File) {
+  uploadError.value = "";
+  selectedFile.value = file;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = new Uint8Array(e.target!.result as ArrayBuffer);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet);
+
+      const parsed: ParsedRow[] = [];
+      for (const row of rows) {
+        const keys = Object.keys(row);
+        const companyKey = keys.find((k) => k.toLowerCase() === "company");
+        const careerKey = keys.find((k) =>
+          ["career page", "careerpage", "career_page", "careers", "url"].includes(k.toLowerCase())
+        );
+        const jobsKey = keys.find((k) =>
+          ["open remote jobs", "openremotejobs", "open_remote_jobs", "remote jobs", "jobs"].includes(k.toLowerCase())
+        );
+        const notesKey = keys.find((k) => k.toLowerCase() === "notes");
+
+        const name = companyKey ? String(row[companyKey]).trim() : "";
+        if (!name) continue;
+
+        const rawJobs = jobsKey ? row[jobsKey] : undefined;
+        const openRemoteJobs =
+          rawJobs !== undefined && rawJobs !== null && rawJobs !== ""
+            ? Number(rawJobs)
+            : undefined;
+
+        parsed.push({
+          name,
+          careerPage: careerKey ? String(row[careerKey]).trim() || undefined : undefined,
+          openRemoteJobs: openRemoteJobs !== undefined && !isNaN(openRemoteJobs) ? openRemoteJobs : undefined,
+          notes: notesKey ? String(row[notesKey]).trim() || undefined : undefined,
+        });
+      }
+
+      if (parsed.length === 0) {
+        uploadError.value = "No companies found. Make sure the file has a 'Company' column.";
+        return;
+      }
+
+      parsedRows.value = parsed;
+      step.value = "preview";
+    } catch {
+      uploadError.value = "Could not read the file. Make sure it is a valid Excel file.";
+    }
+  };
+  reader.onerror = () => {
+    uploadError.value = "Failed to read the file.";
+  };
+  reader.readAsArrayBuffer(file);
 }
 
+/** Send the raw file to the server to persist into profile.json. */
 async function confirmUpload() {
   if (!selectedFile.value) return;
 
   uploading.value = true;
   uploadError.value = "";
-  uploadResult.value = null;
 
   try {
     const result = await api.uploadCompanies(selectedFile.value);
     uploadResult.value = result;
-    selectedFile.value = null;
-    if (fileInputRef.value) {
-      fileInputRef.value.value = "";
-    }
+    step.value = "done";
     await loadCompanies();
   } catch (err) {
     uploadError.value = (err as Error).message;
   } finally {
     uploading.value = false;
   }
+}
+
+async function rankAll() {
+  ranking.value = true;
+  rankError.value = "";
+  try {
+    rankedCompanies.value = await api.rankCompanies();
+  } catch (err) {
+    rankError.value = (err as Error).message;
+  } finally {
+    ranking.value = false;
+  }
+}
+
+function scoreClass(score: number) {
+  if (score >= 70) return "score-high";
+  if (score >= 45) return "score-mid";
+  return "score-low";
+}
+
+function resetUpload() {
+  step.value = "pick";
+  selectedFile.value = null;
+  parsedRows.value = [];
+  uploadError.value = "";
+  uploadResult.value = null;
+  if (fileInputRef.value) fileInputRef.value.value = "";
 }
 
 async function toggleLike(company: CompanyWithJobs) {
@@ -212,10 +363,6 @@ async function deleteCompany(company: CompanyWithJobs) {
   }
 }
 
-function extractUrl(notes: string): string {
-  const match = notes.match(/URL:\s*(https?:\/\/\S+)/);
-  return match ? match[1] : "#";
-}
 </script>
 
 <style scoped>
@@ -226,19 +373,15 @@ function extractUrl(notes: string): string {
 .upload-area {
   border: 2px dashed var(--border);
   border-radius: 8px;
-  padding: 24px;
+  padding: 32px 24px;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s;
 }
 
-.upload-area:hover {
-  border-color: var(--accent);
-}
+.upload-area:hover { border-color: var(--accent); }
 
-.upload-placeholder {
-  color: var(--muted);
-}
+.upload-placeholder { color: var(--muted); }
 
 .upload-icon {
   font-size: 32px;
@@ -246,24 +389,18 @@ function extractUrl(notes: string): string {
   margin-bottom: 8px;
 }
 
-.upload-preview {
+.preview-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-radius: 6px;
   gap: 12px;
 }
 
-.file-icon {
-  font-size: 24px;
-}
-
-.file-name {
-  flex: 1;
-  font-weight: 500;
-}
-
 .upload-result {
-  margin-top: 16px;
-  padding: 12px;
+  padding: 14px;
   background: #f0fdf4;
   border-radius: 6px;
 }
@@ -281,17 +418,9 @@ function extractUrl(notes: string): string {
   margin-bottom: 16px;
 }
 
-.companies-header h2 {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
-}
+.companies-header h2 { font-size: 16px; font-weight: 600; margin: 0; }
 
-.companies-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.companies-list { display: flex; flex-direction: column; gap: 8px; }
 
 .company-item {
   display: flex;
@@ -303,17 +432,9 @@ function extractUrl(notes: string): string {
   transition: all 0.2s;
 }
 
-.company-item.liked {
-  background: #fff1f2;
-  border-color: #fecdd3;
-}
+.company-item.liked { background: #fff1f2; border-color: #fecdd3; }
 
-.company-main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-}
+.company-main { display: flex; align-items: center; gap: 12px; flex: 1; }
 
 .like-btn {
   background: none;
@@ -325,27 +446,21 @@ function extractUrl(notes: string): string {
   transition: transform 0.2s;
 }
 
-.like-btn:hover {
-  transform: scale(1.2);
-}
+.like-btn:hover { transform: scale(1.2); }
 
-.company-info {
-  flex: 1;
-}
+.company-info { flex: 1; }
+.company-name { font-weight: 500; margin-bottom: 4px; }
+.company-notes { font-size: 12px; }
 
-.company-name {
-  font-weight: 500;
-  margin-bottom: 4px;
-}
+.company-actions { display: flex; align-items: center; gap: 8px; }
 
-.company-notes {
-  font-size: 12px;
-}
-
-.company-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.jobs-badge {
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 .job-count {
@@ -356,20 +471,14 @@ function extractUrl(notes: string): string {
   border-radius: 10px;
 }
 
-.link-btn {
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 13px;
-}
+.link-btn { color: var(--accent); text-decoration: none; font-size: 13px; }
+.link-btn:hover { text-decoration: underline; }
 
-.link-btn:hover {
-  text-decoration: underline;
-}
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { text-align: left; padding: 8px 12px; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+.table td { padding: 8px 12px; border-bottom: 1px solid var(--border); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.small {
-  padding: 4px 10px;
-  font-size: 12px;
-}
+.small { padding: 4px 10px; font-size: 12px; }
 
 .error-msg {
   color: var(--red);
@@ -379,7 +488,77 @@ function extractUrl(notes: string): string {
   border-radius: 6px;
 }
 
-.muted {
-  color: var(--muted);
+.muted { color: var(--muted); }
+
+/* ── AI ranking ── */
+.rank-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
 }
+.rank-header h2 { font-size: 16px; font-weight: 600; margin: 0; }
+
+.rank-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.rank-item:last-child { border-bottom: none; }
+.rank-item.rank-top { background: #f0fdf4; border-radius: 6px; margin-bottom: 2px; }
+
+.rank-position {
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rank-body { flex: 1; min-width: 0; }
+
+.rank-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.rank-name { font-weight: 600; font-size: 14px; }
+
+.rank-reason { font-size: 13px; margin: 0 0 6px; }
+
+.rank-roles { display: flex; flex-wrap: wrap; gap: 6px; }
+.role-tag {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.rank-score-col { flex-shrink: 0; display: flex; align-items: center; }
+.rank-score {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+}
+.score-high { background: #dcfce7; color: #15803d; }
+.score-mid  { background: #fef9c3; color: #854d0e; }
+.score-low  { background: #fee2e2; color: #b91c1c; }
 </style>

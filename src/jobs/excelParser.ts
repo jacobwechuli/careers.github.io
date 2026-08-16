@@ -6,7 +6,8 @@ import * as path from "path";
 
 export interface ParsedCompany {
   name: string;
-  url?: string;
+  careerPage?: string;
+  openRemoteJobs?: number;
   notes?: string;
 }
 
@@ -26,16 +27,28 @@ export function parseCompaniesFromExcel(buffer: Buffer): ParsedCompany[] {
     // Find keys case-insensitively
     const keys = Object.keys(row);
     const companyKey = keys.find((k) => k.toLowerCase() === "company");
-    const urlKey = keys.find((k) => k.toLowerCase() === "url");
+    const careerKey = keys.find((k) =>
+      ["career page", "careerpage", "career_page", "careers", "url"].includes(k.toLowerCase())
+    );
+    const jobsKey = keys.find((k) =>
+      ["open remote jobs", "openremotejobs", "open_remote_jobs", "remote jobs", "jobs"].includes(k.toLowerCase())
+    );
     const notesKey = keys.find((k) => k.toLowerCase() === "notes");
 
     const name = companyKey ? String(row[companyKey]).trim() : "";
-    if (!name) continue; // Skip rows without a company name
+    if (!name) continue;
+
+    const rawJobs = jobsKey ? row[jobsKey] : undefined;
+    const openRemoteJobs =
+      rawJobs !== undefined && rawJobs !== null && rawJobs !== ""
+        ? Number(rawJobs)
+        : undefined;
 
     companies.push({
       name,
-      url: urlKey ? String(row[urlKey]).trim() : undefined,
-      notes: notesKey ? String(row[notesKey]).trim() : undefined,
+      careerPage: careerKey ? String(row[careerKey]).trim() || undefined : undefined,
+      openRemoteJobs: openRemoteJobs !== undefined && !isNaN(openRemoteJobs) ? openRemoteJobs : undefined,
+      notes: notesKey ? String(row[notesKey]).trim() || undefined : undefined,
     });
   }
 
@@ -64,8 +77,10 @@ export function addCompaniesToProfile(companies: ParsedCompany[]): { added: numb
 
     profile.preferredCompanies.push({
       name: company.name,
-      liked: false, // User can mark as liked after reviewing
-      notes: company.notes || company.url ? `URL: ${company.url || ""}${company.notes ? " | " + company.notes : ""}` : undefined,
+      liked: false,
+      careerPage: company.careerPage,
+      openRemoteJobs: company.openRemoteJobs,
+      notes: company.notes,
     });
     added++;
   }

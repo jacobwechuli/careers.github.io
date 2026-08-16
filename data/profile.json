@@ -1,0 +1,935 @@
+{
+  "name": "JACOB WECHULI",
+  "email": "wechulijac@gmail.com",
+  "phone": "+254 718 952 819",
+  "location": "Nairobi, KE",
+  "linkedin": "",
+  "github": "",
+  "portfolio": "",
+  "summary": "Software Engineer with experience building scalable backend systems, mobile applications, cloud-native services, and AI-powered solutions. Proficient in Java, Spring Boot, Python, Flutter, React, Docker, Kubernetes, and AWS. Passionate about AI engineering, backend development, cloud technologies, and building software that solves real-world problems.",
+  "education": [
+    {
+      "institution": "Jomo Kenyatta University of Agriculture and Technology",
+      "degree": "BSc",
+      "field": "Telecommunications and Information Engineering",
+      "startYear": 2019,
+      "endYear": 2025,
+      "grade": "",
+      "highlights": []
+    }
+  ],
+  "experience": [
+    {
+      "company": "KCB Group PLC",
+      "role": "Software Developer Intern — Application Development (Integrations)",
+      "startDate": "2024-05",
+      "endDate": "2024-08",
+      "bullets": [
+        "Developed and maintained Java Spring Boot microservices powering enterprise banking platforms",
+        "Designed and maintained RESTful APIs and participated in SOAP service integrations for internal banking systems",
+        "Integrated third-party financial services including Safaricom Daraja APIs for mobile money workflows",
+        "Deployed and managed containerised services using Docker and Kubernetes in staging environments",
+        "Improved application observability through structured logging with SLF4J, supporting faster issue diagnosis"
+      ],
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "PostgreSQL",
+        "Docker",
+        "Kubernetes",
+        "REST",
+        "SOAP",
+        "Daraja API"
+      ]
+    },
+    {
+      "company": "PropelFin",
+      "role": "Junior Application Developer",
+      "startDate": "2025-03",
+      "endDate": "2025-08",
+      "bullets": [
+        "Developed Flutter-based fintech applications including digital payment and loan management solutions",
+        "Built reusable mobile components shared across multiple financial applications, reducing duplicate development effort",
+        "Integrated backend services and payment workflows into production mobile applications",
+        "Collaborated with designers and developers to deliver responsive, user-friendly interfaces"
+      ],
+      "skills": [
+        "Flutter",
+        "Dart",
+        "Firebase",
+        "REST APIs"
+      ]
+    },
+    {
+      "company": "Kenyatta University",
+      "role": "Engineering Intern — Network Infrastructure",
+      "startDate": "2022-05",
+      "endDate": "2022-08",
+      "bullets": [
+        "Supported maintenance of the university's campus-wide network infrastructure across fiber and Ethernet networks",
+        "Diagnosed and resolved connectivity issues; configured wireless access points for university events and conferences",
+        "Supported KUtv live broadcasts by maintaining reliable network connectivity for streaming operations",
+        "Assisted engineers in monitoring network performance and reducing service downtime"
+      ],
+      "skills": []
+    }
+  ],
+  "projects": [
+    {
+      "name": "Goldplus Advisory Mobile Application",
+      "description": "Designed and developed a production mobile application for a Nairobi-based business consulting firm serving SMEs and entrepreneurs",
+      "tech": [
+        "React Native",
+        "Firebase",
+        "Anthropic AI"
+      ],
+      "url": "",
+      "highlights": [
+        "Built an AI business advisor chatbot and WhatsApp financial assistant using Anthropic AI for personalised financial guidance",
+        "Implemented receipt OCR and automatic M-Pesa SMS transaction parsing for hands-free expense logging",
+        "Architected secure cloud authentication, budget tracking, and financial statement generation features"
+      ]
+    },
+    {
+      "name": "Trustworthy RAG Chat Application",
+      "description": "Built a Retrieval-Augmented Generation (RAG) chat application with Streamlit that lets users upload a PDF and ask natural language questions about its contents",
+      "tech": [
+        "Streamlit",
+        "LlamaIndex",
+        "Cleanlab TLM"
+      ],
+      "url": "",
+      "highlights": [
+        "Indexed documents using LlamaIndex and retrieved the most relevant information before generating responses, improving reliability over a standard chatbot for document-based knowledge",
+        "Integrated a trustworthiness score using Cleanlab's Trustworthy Language Model (TLM), surfacing a confidence score and explanation alongside every answer so users can gauge reliability instead of accepting outputs at face value"
+      ]
+    },
+    {
+      "name": "Telemedicine Appointment System",
+      "description": "Developed a secure healthcare platform supporting doctor-patient appointment scheduling with role-based access control",
+      "tech": [
+        "Spring Boot",
+        "PostgreSQL",
+        "React",
+        "Redis",
+        "Docker"
+      ],
+      "url": "",
+      "highlights": [
+        "Implemented JWT authentication, Redis token caching, and Docker deployment for scalable, secure session management",
+        "Integrated Twilio SMS and email notifications for real-time appointment reminders and confirmations"
+      ]
+    }
+  ],
+  "skills": {
+    "languages": [
+      "Java",
+      "Python",
+      "JavaScript/TypeScript",
+      "Dart",
+      "Go"
+    ],
+    "frameworks": [
+      "Spring Boot",
+      "Spring Security",
+      "React",
+      "React Native",
+      "Flutter"
+    ],
+    "tools": [
+      "Docker",
+      "Kubernetes",
+      "Git/GitHub",
+      "Swagger/OpenAPI",
+      "AWS"
+    ],
+    "concepts": [
+      "LLM Applications",
+      "RAG",
+      "AI Agents",
+      "Prompt Engineering",
+      "Embeddings",
+      "Vector Databases",
+      "LlamaIndex",
+      "Hugging Face",
+      "Anthropic/OpenAI APIs",
+      "AI Assistants"
+    ]
+  },
+  "targetRoles": [
+    {
+      "title": "Software Engineer",
+      "keywords": [
+        "Java",
+        "Spring Boot",
+        "Python",
+        "Flutter",
+        "React",
+        "Docker",
+        "Kubernetes",
+        "AWS"
+      ],
+      "antiKeywords": []
+    }
+  ],
+  "targetLocations": [
+    "Nairobi, KE",
+    "Remote"
+  ],
+  "salaryMin": null,
+  "preferredCompanies": [
+    {
+      "name": "Remotive Slack Community",
+      "liked": false,
+      "careerPage": "NOW offering Memberships at -50% during COVID... Co-work remotely with us!"
+    },
+    {
+      "name": "Abacus Insights",
+      "liked": false,
+      "careerPage": "https://abacusinsights.com/careers/"
+    },
+    {
+      "name": "Akasha",
+      "liked": false,
+      "careerPage": "https://hack.akasha.org/"
+    },
+    {
+      "name": "Alley Interactive",
+      "liked": false,
+      "careerPage": "https://alley.co/careers/"
+    },
+    {
+      "name": "Anrok",
+      "liked": false,
+      "careerPage": "https://www.anrok.com/careers#open-roles"
+    },
+    {
+      "name": "Apollo",
+      "liked": false,
+      "careerPage": "https://www.apollo.io/company/careers"
+    },
+    {
+      "name": "Appfire",
+      "liked": false,
+      "careerPage": "https://appfire.com/careers"
+    },
+    {
+      "name": "Another 150,000+ remote jobs on:",
+      "liked": false,
+      "careerPage": "remotive.com"
+    },
+    {
+      "name": "Argyle",
+      "liked": false,
+      "careerPage": "https://argyle.com/careers"
+    },
+    {
+      "name": "Art & Logic",
+      "liked": false,
+      "careerPage": "https://artandlogic.com/careers/"
+    },
+    {
+      "name": "AssemblyAI",
+      "liked": false,
+      "careerPage": "https://www.assemblyai.com/careers"
+    },
+    {
+      "name": "Astropad",
+      "liked": false,
+      "careerPage": "https://astropad.com/about/"
+    },
+    {
+      "name": "Awesome Motive",
+      "liked": false,
+      "careerPage": "https://awesomemotive.com/career/"
+    },
+    {
+      "name": "Best Practical",
+      "liked": false,
+      "careerPage": "https://bestpractical.com/careers"
+    },
+    {
+      "name": "Bevy Labs",
+      "liked": false,
+      "careerPage": "https://www.bevy.com/jobs"
+    },
+    {
+      "name": "Blumira",
+      "liked": false,
+      "careerPage": "https://www.blumira.com/careers/"
+    },
+    {
+      "name": "Boldly",
+      "liked": false,
+      "careerPage": "https://boldly.com/jobs/"
+    },
+    {
+      "name": "BookingSync",
+      "liked": false,
+      "careerPage": "https://www.bookingsync.com/en/careers"
+    },
+    {
+      "name": "Brave",
+      "liked": false,
+      "careerPage": "https://brave.com/careers/"
+    },
+    {
+      "name": "Breeze Church",
+      "liked": false,
+      "careerPage": "https://www.breezechms.com/careers"
+    },
+    {
+      "name": "Bulb",
+      "liked": false,
+      "careerPage": "https://angel.co/company/bulb-software/jobs"
+    },
+    {
+      "name": "Cabana Blockchain",
+      "liked": false,
+      "careerPage": "https://cabanablockchain.com/careers"
+    },
+    {
+      "name": "Campfire",
+      "liked": false,
+      "careerPage": "https://www.campfirelabs.co/careers"
+    },
+    {
+      "name": "Canny",
+      "liked": false,
+      "careerPage": "https://jobs.canny.io/"
+    },
+    {
+      "name": "CartKit",
+      "liked": false,
+      "careerPage": "https://www.notion.so/Work-at-CartKit-b14d5aef3bae4061a9e3d7727e5cc471#1578125408d4478f84d9959139836164"
+    },
+    {
+      "name": "Chartmetric",
+      "liked": false,
+      "careerPage": "https://chartmetric.com/aboutus"
+    },
+    {
+      "name": "Chatbot",
+      "liked": false,
+      "careerPage": "https://www.chatbotpack.com/chatbot-jobs/"
+    },
+    {
+      "name": "Chromatic",
+      "liked": false,
+      "careerPage": "https://chromatichq.com/careers"
+    },
+    {
+      "name": "Civic Actions",
+      "liked": false,
+      "careerPage": "https://civicactions.com/careers"
+    },
+    {
+      "name": "Clipboard Health",
+      "liked": false,
+      "careerPage": "https://jobs.ashbyhq.com/clipboard?utm_source=careers"
+    },
+    {
+      "name": "Cloudtalk",
+      "liked": false,
+      "careerPage": "https://www.cloudtalk.io/jobs"
+    },
+    {
+      "name": "Companies",
+      "liked": false
+    },
+    {
+      "name": "Continu",
+      "liked": false,
+      "careerPage": "https://www.continu.com/careers"
+    },
+    {
+      "name": "Cookly",
+      "liked": false,
+      "careerPage": "https://careers.cookly.me/open-positions"
+    },
+    {
+      "name": "Corelight",
+      "liked": false,
+      "careerPage": "https://corelight.com/company/careers/"
+    },
+    {
+      "name": "Counlty",
+      "liked": false,
+      "careerPage": "https://www.linkedin.com/company/countly/jobs/"
+    },
+    {
+      "name": "CryptoKitties",
+      "liked": false,
+      "careerPage": "https://www.cryptokitties.co/careers"
+    },
+    {
+      "name": "Cycloid",
+      "liked": false,
+      "careerPage": "https://www.cycloid.io/join-us"
+    },
+    {
+      "name": "Cypress",
+      "liked": false,
+      "careerPage": "https://www.cypress.io/jobs/"
+    },
+    {
+      "name": "Daily Kos (Kos Media)",
+      "liked": false,
+      "careerPage": "https://www.dailykos.com/jobs/"
+    },
+    {
+      "name": "Data Automation",
+      "liked": false,
+      "careerPage": "https://dataautomation.com/"
+    },
+    {
+      "name": "Design Pickle",
+      "liked": false,
+      "careerPage": "https://designpickle.com/careers"
+    },
+    {
+      "name": "Deskpro",
+      "liked": false,
+      "careerPage": "https://www.deskpro.com/careers/"
+    },
+    {
+      "name": "DialUp",
+      "liked": false,
+      "careerPage": "https://dialup.com/about"
+    },
+    {
+      "name": "DNSfilter",
+      "liked": false,
+      "careerPage": "https://www.dnsfilter.com/careers"
+    },
+    {
+      "name": "DNSimple",
+      "liked": false,
+      "careerPage": "https://dnsimple.com/jobs"
+    },
+    {
+      "name": "Dozuki",
+      "liked": false,
+      "careerPage": "https://www.dozuki.com/careers/"
+    },
+    {
+      "name": "DuckDuckGo",
+      "liked": false,
+      "careerPage": "https://duckduckgo.com/hiring/"
+    },
+    {
+      "name": "Earnest",
+      "liked": false,
+      "careerPage": "https://www.earnest.com/careers"
+    },
+    {
+      "name": "Elevar",
+      "liked": false,
+      "careerPage": "https://www.getelevar.com/careers/"
+    },
+    {
+      "name": "Enigma",
+      "liked": false,
+      "careerPage": "https://boards.greenhouse.io/enigmaio"
+    },
+    {
+      "name": "Eon",
+      "liked": false,
+      "careerPage": "https://job-boards.eu.greenhouse.io/eonio"
+    },
+    {
+      "name": "Epic Industries",
+      "liked": false,
+      "careerPage": "http://www.epicindustries.co.uk/careers"
+    },
+    {
+      "name": "Fetch&Funnel",
+      "liked": false,
+      "careerPage": "https://www.fetchfunnel.com/careers/"
+    },
+    {
+      "name": "Fieldguide",
+      "liked": false,
+      "careerPage": "https://www.fieldguide.io/careers"
+    },
+    {
+      "name": "Files",
+      "liked": false,
+      "careerPage": "https://www.files.com/jobs/now-hiring/"
+    },
+    {
+      "name": "Firstbase",
+      "liked": false,
+      "careerPage": "https://www.firstbase.io/careers"
+    },
+    {
+      "name": "Float",
+      "liked": false,
+      "careerPage": "https://www.float.com/careers"
+    },
+    {
+      "name": "FormAssembly",
+      "liked": false,
+      "careerPage": "https://apply.workable.com/formassembly/"
+    },
+    {
+      "name": "GetResponse",
+      "liked": false,
+      "careerPage": "https://apply.workable.com/getresponse/"
+    },
+    {
+      "name": "Gitbook",
+      "liked": false,
+      "careerPage": "https://www.gitbook.com/about#open-roles"
+    },
+    {
+      "name": "Going",
+      "liked": false,
+      "careerPage": "https://www.going.com/careers#OP"
+    },
+    {
+      "name": "Graphy App",
+      "liked": false,
+      "careerPage": "https://www.notion.so/Graphy-Careers-e2e39a1719b343928be38d7c85ab1b31"
+    },
+    {
+      "name": "Gravity Forms",
+      "liked": false,
+      "careerPage": "https://www.gravityforms.com/careers/"
+    },
+    {
+      "name": "Growth Machine",
+      "liked": false,
+      "careerPage": "https://www.growthmachine.com/careers"
+    },
+    {
+      "name": "Heaps Digital Ventures",
+      "liked": false,
+      "careerPage": "https://www.heapsdigitalventures.com/careers"
+    },
+    {
+      "name": "Hippo Education",
+      "liked": false,
+      "careerPage": "https://angel.co/company/hippo-education/jobs"
+    },
+    {
+      "name": "Hiring remote workers? We can help! Check us out on :",
+      "liked": false
+    },
+    {
+      "name": "Hospital IQ",
+      "liked": false,
+      "careerPage": "https://www.hospiq.com/careers/"
+    },
+    {
+      "name": "Hubstaff",
+      "liked": false,
+      "careerPage": "https://hubstaff.com/jobs"
+    },
+    {
+      "name": "Huntress",
+      "liked": false,
+      "careerPage": "https://www.huntress.com/company/careers"
+    },
+    {
+      "name": "Igalia",
+      "liked": false,
+      "careerPage": "https://www.igalia.com/jobs/"
+    },
+    {
+      "name": "Infinity Software Development",
+      "liked": false,
+      "careerPage": "https://www.infinity-software.com/careers"
+    },
+    {
+      "name": "Inpsyde",
+      "liked": false,
+      "careerPage": "https://inpsyde.com/en/remote-jobs/"
+    },
+    {
+      "name": "Input Logic",
+      "liked": false,
+      "careerPage": "http://inputlogic.ca/careers"
+    },
+    {
+      "name": "Input Output",
+      "liked": false,
+      "careerPage": "https://iohk.io/careers/"
+    },
+    {
+      "name": "InterDax",
+      "liked": false,
+      "careerPage": "https://www.interdax.com/careers/"
+    },
+    {
+      "name": "Intuition Machines",
+      "liked": false,
+      "careerPage": "https://hcaptcha.zohorecruit.com/jobs/Careers"
+    },
+    {
+      "name": "Invisible Technologies",
+      "liked": false,
+      "careerPage": "https://jobs.breezy.hr/"
+    },
+    {
+      "name": "Kalepa Insurance",
+      "liked": false,
+      "careerPage": "https://kalepainsurance.com/careers"
+    },
+    {
+      "name": "Knock Homes",
+      "liked": false,
+      "careerPage": "https://www.knock.com/careers"
+    },
+    {
+      "name": "Knowde",
+      "liked": false,
+      "careerPage": "https://www.knowde.com/careers"
+    },
+    {
+      "name": "Ko-fi",
+      "liked": false,
+      "careerPage": "https://more.ko-fi.com/careers"
+    },
+    {
+      "name": "Last Call Media",
+      "liked": false,
+      "careerPage": "https://lastcallmedia.com/careers"
+    },
+    {
+      "name": "Latchel",
+      "liked": false,
+      "careerPage": "https://latchel.com/careers"
+    },
+    {
+      "name": "LegalNature",
+      "liked": false,
+      "careerPage": "https://www.legalnature.com/careers"
+    },
+    {
+      "name": "Level12",
+      "liked": false,
+      "careerPage": "https://www.level12.io/careers/"
+    },
+    {
+      "name": "LexBlog",
+      "liked": false,
+      "careerPage": "https://www.lexblog.com/careers/"
+    },
+    {
+      "name": "MarsBased",
+      "liked": false,
+      "careerPage": "https://marsbased.com/jobs/"
+    },
+    {
+      "name": "MedStack",
+      "liked": false,
+      "careerPage": "https://medstack.co/careers/"
+    },
+    {
+      "name": "Meet Edgar",
+      "liked": false,
+      "careerPage": "https://meetedgar.com/careers/"
+    },
+    {
+      "name": "Metronome",
+      "liked": false,
+      "careerPage": "https://metronome.com/company/careers#positions"
+    },
+    {
+      "name": "MKG Marketing",
+      "liked": false,
+      "careerPage": "https://mkgmarketinginc.com/about/jobs/#positions"
+    },
+    {
+      "name": "Modern Tribe",
+      "liked": false,
+      "careerPage": "https://tri.be/careers/"
+    },
+    {
+      "name": "Netdata Inc.",
+      "liked": false,
+      "careerPage": "https://careers.netdata.cloud/"
+    },
+    {
+      "name": "Nightwatch",
+      "liked": false,
+      "careerPage": "https://nightwatch.io/jobs/"
+    },
+    {
+      "name": "Nova Credit",
+      "liked": false,
+      "careerPage": "https://www.novacredit.com/careers"
+    },
+    {
+      "name": "Nutrient",
+      "liked": false,
+      "careerPage": "https://www.nutrient.io/company/careers"
+    },
+    {
+      "name": "Nylas",
+      "liked": false,
+      "careerPage": "https://www.nylas.com/company/jobs/"
+    },
+    {
+      "name": "Octopus Deploy",
+      "liked": false,
+      "careerPage": "https://octopus.com/company/careers"
+    },
+    {
+      "name": "Oddball",
+      "liked": false,
+      "careerPage": "https://oddball.io/jobs"
+    },
+    {
+      "name": "OhmConnect",
+      "liked": false,
+      "careerPage": "https://www.ohmconnect.com/about-us/jobs"
+    },
+    {
+      "name": "OhMD",
+      "liked": false,
+      "careerPage": "https://www.ohmd.com/careers/"
+    },
+    {
+      "name": "Olio",
+      "liked": false,
+      "careerPage": "https://olioex.com/join-our-team/"
+    },
+    {
+      "name": "Oomnitza",
+      "liked": false,
+      "careerPage": "https://www.oomnitza.com/careers/open-positions/"
+    },
+    {
+      "name": "OnceHub",
+      "liked": false,
+      "careerPage": "https://www.oncehub.com/careers"
+    },
+    {
+      "name": "OnTheGoSystems",
+      "liked": false,
+      "careerPage": "https://www.onthegosystems.com/jobs/"
+    },
+    {
+      "name": "Open Collective",
+      "liked": false,
+      "careerPage": "https://opencollective.com/hiring"
+    },
+    {
+      "name": "Open Law Lab",
+      "liked": false,
+      "careerPage": "http://www.openlawlib.org/careers/"
+    },
+    {
+      "name": "Parabol",
+      "liked": false,
+      "careerPage": "https://www.parabol.co/join"
+    },
+    {
+      "name": "Parknav",
+      "liked": false,
+      "careerPage": "https://parknav.com/careers"
+    },
+    {
+      "name": "Pelcro",
+      "liked": false,
+      "careerPage": "https://www.pelcro.com/en/careers"
+    },
+    {
+      "name": "Perfect Keto",
+      "liked": false,
+      "careerPage": "https://perfectketo.com/careers/"
+    },
+    {
+      "name": "Pexels",
+      "liked": false,
+      "careerPage": "https://wellfound.com/company/pexels/jobs"
+    },
+    {
+      "name": "Ping Marketing",
+      "liked": false,
+      "careerPage": "https://wellfound.com/company/ping-marketing-1/jobs"
+    },
+    {
+      "name": "Platform.sh",
+      "liked": false,
+      "careerPage": "https://platform.sh/company/careers/"
+    },
+    {
+      "name": "Playco",
+      "liked": false,
+      "careerPage": "https://jobs.lever.co/playco"
+    },
+    {
+      "name": "PocketSuite",
+      "liked": false,
+      "careerPage": "https://wellfound.com/company/pocketsuite/jobs"
+    },
+    {
+      "name": "Prifina",
+      "liked": false,
+      "careerPage": "https://www.prifina.com/join-our-team.html"
+    },
+    {
+      "name": "Pro-tip: Looking for a remote job? We run webinars on \"3 key mistakes to avoid when looking for a remote startup job\" ➡️➡️",
+      "liked": false
+    },
+    {
+      "name": "Prolific",
+      "liked": false,
+      "careerPage": "https://www.prolific.co/careers/"
+    },
+    {
+      "name": "Prospect",
+      "liked": false,
+      "careerPage": "https://tryprospect.com/careers"
+    },
+    {
+      "name": "Pubstack",
+      "liked": false,
+      "careerPage": "https://www.welcometothejungle.com/en/companies/pubstack-io"
+    },
+    {
+      "name": "Pulumi",
+      "liked": false,
+      "careerPage": "https://www.pulumi.com/careers/"
+    },
+    {
+      "name": "Ranker",
+      "liked": false,
+      "careerPage": "https://blog.ranker.com/jobs?ref=foot"
+    },
+    {
+      "name": "Reaktiv Studios",
+      "liked": false,
+      "careerPage": "https://reaktivstudios.com/jobs/"
+    },
+    {
+      "name": "Reedsy",
+      "liked": false,
+      "careerPage": "https://angel.co/reedsy/jobs"
+    },
+    {
+      "name": "Replicate",
+      "liked": false,
+      "careerPage": "https://replicate.com/about#join-us"
+    },
+    {
+      "name": "Rho AI",
+      "liked": false,
+      "careerPage": "https://rhoimpact.com/careers/"
+    },
+    {
+      "name": "Roadtrippers",
+      "liked": false,
+      "careerPage": "https://jobs.roadtrippers.com/"
+    },
+    {
+      "name": "Rocket Chat",
+      "liked": false,
+      "careerPage": "https://jobs.rocket.chat/careers"
+    },
+    {
+      "name": "RocketAir",
+      "liked": false,
+      "careerPage": "https://www.rocketair.com/careers"
+    },
+    {
+      "name": "Rotunda Software",
+      "liked": false,
+      "careerPage": "https://apply.workable.com/rotunda-software"
+    },
+    {
+      "name": "Routable",
+      "liked": false,
+      "careerPage": "https://apply.workable.com/routable/"
+    },
+    {
+      "name": "SafeGraph",
+      "liked": false,
+      "careerPage": "https://www.safegraph.com/careers#open-positions"
+    },
+    {
+      "name": "Sahara AI",
+      "liked": false,
+      "careerPage": "https://saharalabs.ai/community/career"
+    },
+    {
+      "name": "Screenly",
+      "liked": false,
+      "careerPage": "https://apply.workable.com/screenly/"
+    },
+    {
+      "name": "Semaphore",
+      "liked": false,
+      "careerPage": "https://semaphoreci.com/hiring"
+    },
+    {
+      "name": "Semrush",
+      "liked": false,
+      "careerPage": "https://careers.semrush.com/"
+    },
+    {
+      "name": "ShrineDev",
+      "liked": false,
+      "careerPage": "https://shrinedev.com/careers/"
+    },
+    {
+      "name": "Sked Social",
+      "liked": false,
+      "careerPage": "https://skedsocial.com/careers/"
+    },
+    {
+      "name": "Socket",
+      "liked": false,
+      "careerPage": "https://socket.dev/careers#open-roles"
+    },
+    {
+      "name": "Sortly",
+      "liked": false,
+      "careerPage": "https://sortly-inc.breezy.hr/?"
+    },
+    {
+      "name": "Staffcloud",
+      "liked": false,
+      "careerPage": "https://www.staff.cloud/en/about#jobs"
+    },
+    {
+      "name": "StrongDM",
+      "liked": false,
+      "careerPage": "https://www.strongdm.com/careers"
+    },
+    {
+      "name": "TalkJS",
+      "liked": false,
+      "careerPage": "https://talkjs.com/jobs/"
+    },
+    {
+      "name": "Thatch",
+      "liked": false,
+      "careerPage": "https://thatch.ai/jobs"
+    },
+    {
+      "name": "Tomedes",
+      "liked": false,
+      "careerPage": "https://www.tomedes.com/careers"
+    },
+    {
+      "name": "Upbound",
+      "liked": false,
+      "careerPage": "https://www.upbound.io/careers#working-with-us"
+    },
+    {
+      "name": "UpMetrics",
+      "liked": false,
+      "careerPage": "https://www.upmetrics.com/careers.html"
+    },
+    {
+      "name": "Veridian",
+      "liked": false,
+      "careerPage": "https://veridian.info/careers/"
+    }
+  ],
+  "appliedJobIds": []
+}

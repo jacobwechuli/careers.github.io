@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { loadAppliedJobs, updateStatus, recordApplication } from "../jobs/tracker.js";
 import { getDueFollowUps } from "../jobs/tracker.js";
-import { runMorning } from "../agent/morning.js";
+import { fetchJobs } from "../jobs/search.js";
 import { scrapeJobUrl } from "../jobs/scraper.js";
 import { scoreJobs } from "../jobs/scorer.js";
 import { tailorCV } from "../cv/tailor.js";
@@ -10,12 +10,16 @@ import { generateCoverLetter } from "../cv/coverLetter.js";
 import { loadProfile, saveProfile, profileToText } from "../profile/profile.js";
 import { parseProfileFromText } from "../profile/parser.js";
 import { parseCompaniesFromExcel, addCompaniesToProfile, getPreferredCompanies } from "../jobs/excelParser.js";
+import { rankCompanies } from "../jobs/companyRanker.js";
 import type { AppliedJob, Profile } from "../profile/types.js";
 import type { ScoredJob } from "../jobs/types.js";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Raw binary body parser used only for the Excel upload route
+const rawBody = express.raw({ type: "application/octet-stream", limit: "10mb" });
 
 // ─── Applications ─────────────────────────────────────────────────────────────
 
@@ -47,28 +51,29 @@ app.get("/api/reminders", (_req: Request, res: Response) => {
   res.json(getDueFollowUps());
 });
 
-// ─── Morning run ──────────────────────────────────────────────────────────────
+// ─── Job search ───────────────────────────────────────────────────────────────
 
-let runInProgress = false;
+let searchInProgress = false;
 
 app.post("/api/run", async (_req: Request, res: Response) => {
-  if (runInProgress) {
-    res.status(409).json({ error: "A morning run is already in progress" });
+  if (searchInProgress) {
+    res.status(409).json({ error: "A job search is already in progress" });
     return;
   }
-  runInProgress = true;
+  searchInProgress = true;
   try {
-    await runMorning();
-    res.json({ ok: true });
+    const profile = loadProfile();
+    const jobs = await fetchJobs(profile);
+    res.json({ ok: true, jobs });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   } finally {
-    runInProgress = false;
+    searchInProgress = false;
   }
 });
 
 app.get("/api/run/status", (_req: Request, res: Response) => {
-  res.json({ running: runInProgress });
+  res.json({ running: searchInProgress });
 });
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
@@ -179,18 +184,28 @@ app.post("/api/apply-url", async (req: Request, res: Response) => {
 
 // ─── Excel Upload ─────────────────────────────────────────────────────────────
 
-app.post("/api/companies/upload", (req: Request, res: Response) => {
-  const fileBuffer = (req.body as any).fileBuffer as Buffer | undefined;
-  
-  if (!fileBuffer) {
+app.post("/api/companies/upload", rawBody, (req: Request, res: Response) => {
+  const buf = req.body as Buffer;
+
+  if (!buf || buf.length === 0) {
     res.status(400).json({ error: "No file provided. Please upload an Excel file." });
     return;
   }
 
   try {
-    const companies = parseCompaniesFromExcel(fileBuffer);
+    const companies = parseCompaniesFromExcel(buf);
     const result = addCompaniesToProfile(companies);
     res.json({ ok: true, ...result, companies });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+app.post("/api/companies/rank", async (_req: Request, res: Response) => {
+  try {
+    const profile = loadProfile();
+    const ranked = await rankCompanies(profile);
+    res.json(ranked);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }

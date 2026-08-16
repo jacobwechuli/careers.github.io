@@ -2,23 +2,45 @@
   <div>
     <h1 class="page-title">Dashboard</h1>
 
-    <!-- Morning run card -->
+    <!-- Job search card -->
     <div class="card run-card">
       <div class="run-header">
         <div>
-          <h2>Morning Run</h2>
-          <p class="sub">Fetch new jobs, score them with AI, and draft your CV &amp; cover letters.</p>
+          <h2>Search Jobs</h2>
+          <p class="sub">Scrape LinkedIn, MyJobMag, Indeed, Glassdoor, CWJobs &amp; Reed for junior and internship roles matching your profile.</p>
         </div>
         <button
           class="primary"
           :disabled="running"
           @click="startRun"
         >
-          {{ running ? "Running…" : "▶ Run Now" }}
+          {{ running ? "Searching…" : "▶ Search Now" }}
         </button>
       </div>
       <p v-if="runError" class="error-msg" style="margin-top:12px">{{ runError }}</p>
-      <p v-if="runDone" class="success-msg">✓ Morning run complete! Check your email for results.</p>
+
+      <!-- Job results table -->
+      <div v-if="foundJobs.length > 0" style="margin-top:16px">
+        <p class="sub" style="margin-bottom:10px">{{ foundJobs.length }} job(s) found:</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Company</th>
+              <th>Location</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="job in foundJobs" :key="job.id">
+              <td><a :href="job.url" target="_blank">{{ job.title }}</a></td>
+              <td>{{ job.company }}</td>
+              <td>{{ job.location }}</td>
+              <td><span class="badge source">{{ job.source }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Stats row -->
@@ -33,7 +55,7 @@
     <div class="card" style="margin-top:24px">
       <h2 style="margin-bottom:14px">Recent Applications</h2>
       <div v-if="loading" class="muted">Loading…</div>
-      <div v-else-if="!recent.length" class="muted">No applications yet. Run the morning job first!</div>
+      <div v-else-if="!recent.length" class="muted">No applications yet.</div>
       <table v-else class="table">
         <thead>
           <tr>
@@ -61,11 +83,20 @@ import { ref, computed, onMounted } from "vue";
 import { api } from "../api";
 import type { AppliedJob } from "../types";
 
+interface RawJob {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  url: string;
+  source: string;
+}
+
 const applications = ref<AppliedJob[]>([]);
 const loading = ref(true);
 const running = ref(false);
 const runError = ref("");
-const runDone = ref(false);
+const foundJobs = ref<RawJob[]>([]);
 
 onMounted(async () => {
   applications.value = await api.getApplications().catch(() => []);
@@ -97,10 +128,10 @@ const stats = computed(() => {
 async function startRun() {
   running.value = true;
   runError.value = "";
-  runDone.value = false;
+  foundJobs.value = [];
   try {
-    await api.startRun();
-    runDone.value = true;
+    const result = await api.startRun() as { ok: boolean; jobs?: RawJob[] };
+    foundJobs.value = result.jobs ?? [];
     applications.value = await api.getApplications().catch(() => []);
   } catch (err) {
     runError.value = (err as Error).message;
@@ -129,5 +160,5 @@ async function startRun() {
 .table tbody tr:last-child td { border-bottom: none; }
 
 .muted { color: var(--muted); font-size: 13px; }
-.success-msg { color: var(--green); font-size: 13px; padding: 8px 12px; background: #dcfce7; border-radius: 6px; }
+.badge.source { background: #f0f4ff; color: #3b6ccc; border-radius: 4px; padding: 2px 6px; font-size: 11px; }
 </style>

@@ -1,5 +1,15 @@
 import type { AppliedJob, ApplyUrlResult, Profile, CompanyPreference } from "./types";
 
+export interface RankedCompany {
+  name: string;
+  score: number;
+  reason: string;
+  roleTypes: string[];
+  careerPage?: string;
+  openRemoteJobs?: number;
+  liked: boolean;
+}
+
 export interface ParsedCompany {
   name: string;
   url?: string;
@@ -8,6 +18,8 @@ export interface ParsedCompany {
 
 export interface CompanyWithJobs extends CompanyPreference {
   jobCount: number;
+  careerPage?: string;
+  openRemoteJobs?: number;
 }
 
 export interface UploadResult {
@@ -72,32 +84,11 @@ export const api = {
     }).then((r) => json<ApplyUrlResult>(r)),
 
   uploadCompanies: (file: File) =>
-    new Promise<UploadResult>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const fileBuffer = reader.result as ArrayBuffer;
-          const uint8Array = new Uint8Array(fileBuffer);
-          // Convert to base64 for JSON transmission
-          let binary = "";
-          for (let i = 0; i < uint8Array.byteLength; i++) {
-            binary += String.fromCharCode(uint8Array[i]);
-          }
-          const base64 = btoa(binary);
-          
-          const response = await fetch(`${BASE}/companies/upload`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ fileBuffer: Buffer.from(base64, "base64") }),
-          });
-          resolve(json(response));
-        } catch (err) {
-          reject(err);
-        }
-      };
-      reader.onerror = () => reject(new Error("Failed to read file"));
-      reader.readAsArrayBuffer(file);
-    }),
+    fetch(`${BASE}/companies/upload`, {
+      method: "POST",
+      headers: { "Content-Type": "application/octet-stream" },
+      body: file,
+    }).then((r) => json<UploadResult>(r)),
 
   getCompanies: () =>
     fetch(`${BASE}/companies`).then((r) => json<CompanyWithJobs[]>(r)),
@@ -113,4 +104,7 @@ export const api = {
     fetch(`${BASE}/companies/${encodeURIComponent(name)}`, {
       method: "DELETE",
     }).then((r) => json<{ ok: boolean }>(r)),
+
+  rankCompanies: () =>
+    fetch(`${BASE}/companies/rank`, { method: "POST" }).then((r) => json<RankedCompany[]>(r)),
 };
