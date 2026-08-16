@@ -50,7 +50,7 @@
           <tbody>
             <tr v-for="row in parsedRows" :key="row.name">
               <td>{{ row.name }}</td>
-              <td><a v-if="row.url" :href="row.url" target="_blank" class="link-btn">{{ row.url }}</a></td>
+              <td><a v-if="row.careerPage" :href="row.careerPage" target="_blank" class="link-btn">{{ row.careerPage }}</a></td>
               <td class="muted">{{ row.notes }}</td>
             </tr>
           </tbody>
